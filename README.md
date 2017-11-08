@@ -31,14 +31,13 @@ Newsletter Demo - http://grapesjs.com/demo-newsletter-editor.html
 ## Table of contents
 
 * [Features](#features)
-* [Installation](#installation)
-* [Development](#development)
+* [Download](#download)
 * [Usage](#usage)
+* [Development](#development)
 * [Documentation](#documentation)
 * [API](#api)
 * [Testing](#testing)
 * [Plugins](#plugins)
-* [Sponsors](#sponsors)
 * [Support](#support)
 * [License](#license)
 
@@ -71,53 +70,27 @@ Newsletter Demo - http://grapesjs.com/demo-newsletter-editor.html
 
 
 
-## Installation
+## Download
 
-* `npm i grapesjs` / `yarn add grapesjs`
-* `git clone https://github.com/artf/grapesjs.git`
+* CDNs
+  * UNPKG
+    * `https://unpkg.com/grapesjs`
+    * `https://unpkg.com/grapesjs/dist/css/grapes.min.css`
+  * CDNJS
+    * `https://cdnjs.cloudflare.com/ajax/libs/grapesjs/0.12.17/grapes.min.js`
+    * `https://cdnjs.cloudflare.com/ajax/libs/grapesjs/0.12.17/css/grapes.min.css`
+* NPM
+  * `npm i grapesjs`
+* GIT
+  * `git clone https://github.com/artf/grapesjs.git`
 
-For development purpose you should follow instructions below.
-
-
-
-
-
-## Development
-
-GrapesJS uses [Webpack](https://github.com/webpack/webpack) as a module bundler and [Babel](https://github.com/babel/babel) as a compiler.
-
-Clone the repository and install all the necessary dependencies
-
-```sh
-$ git clone https://github.com/artf/grapesjs.git
-$ cd grapesjs
-$ npm i
-```
-
-Start the dev server
-
-```sh
-$ npm start
-```
-
-Build before the commit. This will also increase the patch level version of the package
-
-```sh
-$ npm run build
-```
+For the development purpose you should follow instructions below.
 
 
 
 
 
 ## Usage
-
-JQuery is the only hard dependency so you have to include it before using GrapesJS
-
-```html
-<script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
-```
-After that include scripts from GrapesJS with all your configurations
 
 ```html
 <link rel="stylesheet" href="path/to/grapes.min.css">
@@ -151,6 +124,30 @@ You could also grab the content directly from the element with `fromElement` pro
 ```
 
 For more practical example I suggest to look up the code inside this demo: http://grapesjs.com/demo.html
+
+
+
+
+
+## Development
+
+GrapesJS uses [Webpack](https://github.com/webpack/webpack) as a module bundler and [Babel](https://github.com/babel/babel) as a compiler.
+
+Clone the repository and install all the necessary dependencies
+
+```sh
+$ git clone https://github.com/artf/grapesjs.git
+$ cd grapesjs
+$ npm i
+```
+
+Start the dev server
+
+```sh
+$ npm start
+```
+
+Once the development server is started you should be able to reach the demo page (eg. `http://localhost:8080`)
 
 
 
@@ -193,6 +190,7 @@ $ npm test
 * [grapesjs-plugin-forms](https://github.com/artf/grapesjs-plugin-forms) - Set of form components and blocks
 * [grapesjs-navbar](https://github.com/artf/grapesjs-navbar) - Simple navbar component
 * [grapesjs-component-countdown](https://github.com/artf/grapesjs-component-countdown) - Simple countdown component
+* [grapesjs-style-gradient](https://github.com/artf/grapesjs-style-gradient) - Add a gradient type input
 
 ### Presets
 * [grapesjs-preset-newsletter](https://github.com/artf/grapesjs-preset-newsletter) - Newsletter Builder
@@ -200,16 +198,6 @@ $ npm test
 
 
 Find out more about plugins here: [Creating plugins](https://github.com/artf/grapesjs/wiki/Creating-plugins)
-
-
-
-
-
-## Sponsors
-
-The project is sponsored by
-
-[![Sendloop](http://grapesjs.com/img/sendloop-logo-l.png)](https://sendloop.com)
 
 
 
@@ -223,9 +211,13 @@ If you like the project support it with a donation of your choice or become a ba
 
 <a href="https://opencollective.com/grapesjs/sponsors/0/website" target="_blank"><img src="https://opencollective.com/grapesjs/sponsors/0/avatar"></a>
 <a href="https://opencollective.com/grapesjs/sponsors/1/website" target="_blank"><img src="https://opencollective.com/grapesjs/sponsors/1/avatar"></a>
+<a href="https://opencollective.com/grapesjs/sponsors/2/website" target="_blank"><img src="https://opencollective.com/grapesjs/sponsors/2/avatar"></a>
+<a href="https://opencollective.com/grapesjs/sponsors/3/website" target="_blank"><img src="https://opencollective.com/grapesjs/sponsors/3/avatar"></a>
 
 <a href="https://opencollective.com/grapesjs/backers/0/website" target="_blank"><img src="https://opencollective.com/grapesjs/backers/0/avatar"></a>
 <a href="https://opencollective.com/grapesjs/backers/1/website" target="_blank"><img src="https://opencollective.com/grapesjs/backers/1/avatar"></a>
+<a href="https://opencollective.com/grapesjs/backers/2/website" target="_blank"><img src="https://opencollective.com/grapesjs/backers/2/avatar"></a>
+<a href="https://opencollective.com/grapesjs/backers/3/website" target="_blank"><img src="https://opencollective.com/grapesjs/backers/3/avatar"></a>
 
 
 

@@ -1,10 +1,11 @@
-var webpack = require('webpack');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 var pkg = require('./package.json');
-var env = process.env.WEBPACK_ENV;
+var webpack = require('webpack');
+var fs = require('fs');
 var name = 'grapes';
 var plugins = [];
 
-if(env !== 'dev') {
+if (process.env.WEBPACK_ENV !== 'dev') {
   plugins = [
     new webpack.optimize.ModuleConcatenationPlugin(),
     new webpack.optimize.UglifyJsPlugin({
@@ -13,9 +14,18 @@ if(env !== 'dev') {
     }),
     new webpack.BannerPlugin(pkg.name + ' - ' + pkg.version),
   ]
+} else {
+  var index = 'index.html';
+  var indexDev = '_' + index;
+  plugins.push(new HtmlWebpackPlugin({
+    template: fs.existsSync(indexDev) ? indexDev : index
+  }));
 }
 
-plugins.push(new webpack.ProvidePlugin({_: 'underscore'}));
+plugins.push(new webpack.ProvidePlugin({
+  _: 'underscore',
+  Backbone: 'backbone'
+}));
 
 module.exports = {
   entry: './src',
@@ -23,14 +33,6 @@ module.exports = {
       filename: './dist/' + name + '.min.js',
       library: 'grapesjs',
       libraryTarget: 'umd',
-  },
-  externals: {
-    jquery: {
-      commonjs2: 'jquery',
-      commonjs: 'jquery',
-      amd: 'jquery',
-      root: 'jQuery'
-    }
   },
   plugins: plugins,
   module: {
@@ -50,5 +52,8 @@ module.exports = {
   },
   resolve: {
     modules: ['src', 'node_modules'],
+    alias: {
+      jquery: 'cash-dom'
+    }
   },
 }

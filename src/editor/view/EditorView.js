@@ -1,3 +1,5 @@
+const $ = Backbone.$;
+
 module.exports = Backbone.View.extend({
 
   initialize() {
@@ -7,6 +9,7 @@ module.exports = Backbone.View.extend({
     this.pn = model.get('Panels');
     model.on('loaded', () => {
       this.pn.active();
+      this.pn.disableButtons();
       model.runDefault();
       setTimeout(() => model.trigger('load'), 0);
     });

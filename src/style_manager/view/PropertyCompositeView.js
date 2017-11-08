@@ -1,4 +1,5 @@
 const PropertyView = require('./PropertyView');
+const $ = Backbone.$;
 
 module.exports = PropertyView.extend({
 
@@ -12,8 +13,11 @@ module.exports = PropertyView.extend({
   },
 
   inputValueChanged(...args) {
-    if(!this.model.get('detached'))
+    // If it's not detached (eg. 'padding: 1px 2px 3px 4px;') it will follow
+    // the same flow of PropertyView
+    if (!this.model.get('detached')) {
       PropertyView.prototype.inputValueChanged.apply(this, args);
+    }
   },
 
   /**
@@ -26,7 +30,7 @@ module.exports = PropertyView.extend({
 
     if (props.length) {
       if (!this.$input) {
-        this.$input = $('<input>', {value: 0, type: 'hidden' });
+        this.$input = $('<input type="hidden" value="0">');
         this.input = this.$input.get(0);
       }
 
@@ -47,7 +51,7 @@ module.exports = PropertyView.extend({
         var PropertiesView = require('./PropertiesView');
         var propsView = new PropertiesView(this.getPropsConfig());
         this.$props = propsView.render().$el;
-        this.$el.find('#'+ this.pfx +'input-holder').html(this.$props);
+        this.$el.find(`#${this.pfx}input-holder`).append(this.$props);
       }
     }
   },
@@ -106,7 +110,7 @@ module.exports = PropertyView.extend({
     }
 
     if (view) {
-      value = view.model.parseValue(value);
+      value = view.model.parseValue(value).value;
     }
 
     return value;
