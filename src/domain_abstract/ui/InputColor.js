@@ -1,40 +1,49 @@
-var Backbone = require('backbone');
-var Input = require('./Input');
-var Spectrum = require('spectrum-colorpicker');
+require('utils/ColorPicker');
+const Input = require('./Input');
+const $ = Backbone.$;
 
 module.exports = Input.extend({
 
-  template: _.template(`
-  <div class='<%= ppfx %>input-holder'></div>
-  <div class="<%= ppfx %>field-colorp">
-    <div class="<%= ppfx %>field-colorp-c">
-      <div class="<%= ppfx %>checker-bg"></div>
-    </div>
-  </div>`),
+  template() {
+    const ppfx = this.ppfx;
+    return `
+      <div class="${this.holderClass()}"></div>
+      <div class="${ppfx}field-colorp">
+        <div class="${ppfx}field-colorp-c" data-colorp-c>
+          <div class="${ppfx}checker-bg"></div>
+        </div>
+      </div>
+    `;
+  },
 
-  initialize(opts) {
-    Input.prototype.initialize.apply(this, arguments);
-    var ppfx = this.ppfx;
-    this.colorCls = ppfx + 'field-color-picker';
-    this.inputClass = ppfx + 'field ' + ppfx + 'field-color';
-    this.colorHolderClass = ppfx + 'field-colorp-c';
+  inputClass() {
+    const ppfx = this.ppfx;
+    return `${ppfx}field ${ppfx}field-color`;
+  },
 
-    this.listenTo(this.model, 'change:value', this.handleModelChange);
+  holderClass() {
+    return `${this.ppfx}input-holder`;
   },
 
   /**
-   * Updates the view when the model is changed
-   * */
-  handleModelChange(...args) {
-    Input.prototype.handleModelChange.apply(this, args);
+   * Set value to the model
+   * @param {string} val
+   * @param {Object} opts
+   */
+  setValue(val, opts = {}) {
+    const model = this.model;
+    const value = val || model.get('defaults');
+    const inputEl = this.getInputEl();
+    const colorEl = this.getColorEl();
+    const valueClr = value != 'none' ? value : '';
+    inputEl.value = value;
+    colorEl.get(0).style.backgroundColor = valueClr;
 
-    var value = this.model.get('value');
-    var colorEl = this.getColorEl();
-
-    // If no color selected I will set white for the picker
-    value = value === 'none' ? '#fff' : value;
-    colorEl.spectrum('set', value);
-    colorEl.get(0).style.backgroundColor = value;
+    // This prevents from adding multiple thumbs in spectrum
+    if (opts.fromTarget) {
+      colorEl.spectrum('set', valueClr);
+      this.noneColor = value == 'none';
+    }
   },
 
   /**
@@ -42,15 +51,21 @@ module.exports = Input.extend({
    * @return {HTMLElement}
    */
   getColorEl() {
-    if(!this.colorEl) {
+    if (!this.colorEl) {
+      const self = this;
       var model = this.model;
-      var colorEl = $('<div>', {class: this.colorCls});
+
+      var colorEl = $(`<div class="${this.ppfx}field-color-picker"></div>`);
       var cpStyle = colorEl.get(0).style;
       var elToAppend = this.target && this.target.config ? this.target.config.el : '';
-
-      if (typeof colorEl.spectrum == 'undefined') {
-        throw 'Spectrum missing, probably you load jQuery twice';
+      const getColor = color => {
+        let cl = color.getAlpha() == 1 ? color.toHexString() : color.toRgbString();
+        return cl.replace(/ /g, '');
       }
+
+      let changed = 0;
+      let previousСolor;
+      this.$el.find(`[data-colorp-c]`).append(colorEl);
 
       colorEl.spectrum({
         appendTo: elToAppend || 'body',
@@ -61,24 +76,42 @@ module.exports = Input.extend({
         cancelText: '⨯',
         palette: [],
         move(color) {
-          var c  = color.getAlpha() == 1 ? color.toHexString() : color.toRgbString();
-          cpStyle.backgroundColor = c;
+          const cl = getColor(color);
+          cpStyle.backgroundColor = cl;
+          model.setValueFromInput(cl, 0);
         },
         change(color) {
-          var c  = color.getAlpha() == 1 ? color.toHexString() : color.toRgbString();
-          c = c.replace(/ /g,'');
-          cpStyle.backgroundColor = c;
-          model.set('value', c);
+          changed = 1;
+          const cl = getColor(color);
+          cpStyle.backgroundColor = cl;
+          model.setValueFromInput(cl);
+          self.noneColor = 0;
+        },
+        show(color) {
+          changed = 0;
+          previousСolor = getColor(color);
+        },
+        hide(color) {
+           if (!changed && previousСolor) {
+             if (self.noneColor) {
+               previousСolor = '';
+             }
+             cpStyle.backgroundColor = previousСolor;
+             colorEl.spectrum('set', previousСolor);
+             model.setValueFromInput(previousСolor, 0);
+           }
         }
       });
+
       this.colorEl = colorEl;
     }
     return this.colorEl;
   },
 
-  render(...args) {
-    Input.prototype.render.apply(this, args);
-    this.$el.find('.' + this.colorHolderClass).html(this.getColorEl());
+  render() {
+    Input.prototype.render.call(this);
+    // This will make the color input available on render
+    this.getColorEl();
     return this;
   }
 

@@ -1,31 +1,36 @@
-var deps = [
-require('utils'),
-require('storage_manager'),
-require('device_manager'),
-require('parser'),
-require('selector_manager'),
-require('modal_dialog'),
-require('code_manager'),
-require('panels'),
-require('rich_text_editor'),
-require('style_manager'),
-require('asset_manager'),
-require('css_composer'),
-require('dom_components'),
-require('canvas'),
-require('commands'),
-require('block_manager'),
-require('trait_manager'),
+import { isUndefined, defaults } from 'underscore';
+
+const deps = [
+  require('utils'),
+  require('storage_manager'),
+  require('device_manager'),
+  require('parser'),
+  require('selector_manager'),
+  require('modal_dialog'),
+  require('code_manager'),
+  require('panels'),
+  require('rich_text_editor'),
+  require('style_manager'),
+  require('asset_manager'),
+  require('css_composer'),
+  require('trait_manager'),
+  require('dom_components'),
+  require('canvas'),
+  require('commands'),
+  require('block_manager')
 ];
 
-var Backbone = require('backbone');
-var UndoManager = require('backbone-undo');
-var key = require('keymaster');
-var timedInterval;
+const Backbone = require('backbone');
+const UndoManager = require('backbone-undo');
+const key = require('keymaster');
+let timedInterval;
 
-if (!Backbone.$) {
-  Backbone.$ = $;
-}
+require('utils/extender')({
+  Backbone: Backbone,
+  $: Backbone.$
+});
+
+const $ = Backbone.$;
 
 module.exports = Backbone.Model.extend({
 
@@ -58,7 +63,7 @@ module.exports = Backbone.Model.extend({
     this.initUndoManager();
 
     this.on('change:selectedComponent', this.componentSelected, this);
-    this.on('change:changesCount', this.updateBeforeUnload, this);
+    this.on('change:changesCount', this.updateChanges, this);
   },
 
   /**
@@ -95,20 +100,27 @@ module.exports = Backbone.Model.extend({
     }
   },
 
+
   /**
    * Set the alert before unload in case it's requested
    * and there are unsaved changes
    * @private
    */
-  updateBeforeUnload() {
-    var changes = this.get('changesCount');
+  updateChanges() {
+    const stm = this.get('StorageManager');
+    const changes = this.get('changesCount');
 
     if (this.config.noticeOnUnload && changes) {
       window.onbeforeunload = e => 1;
     } else {
       window.onbeforeunload = null;
     }
+
+    if (stm.isAutosave() && changes >= stm.getStepsBeforeSave()) {
+      this.store();
+    }
   },
+
 
   /**
    * Load generic module
@@ -194,16 +206,8 @@ module.exports = Backbone.Model.extend({
 
     timedInterval && clearInterval(timedInterval);
     timedInterval = setTimeout(() => {
-      var count = this.get('changesCount') + 1;
-      var stm = this.get('StorageManager');
-      this.set('changesCount', count);
-
-      if (!stm.isAutosave() || count < stm.getStepsBeforeSave()) {
-        return;
-      }
-
       if (!opt.avoidStore) {
-        this.store();
+        this.set('changesCount', this.get('changesCount') + 1, opt)
       }
     }, 0);
   },
@@ -291,10 +295,12 @@ module.exports = Backbone.Model.extend({
    * @private
    * */
   componentSelected(model, val, options) {
-    if(!this.get('selectedComponent'))
+    if (!this.get('selectedComponent')) {
       this.trigger('deselect-comp');
-    else
+    } else {
       this.trigger('select-comp',[model,val,options]);
+      this.trigger('component:selected', arguments);
+    }
   },
 
   /**
@@ -604,5 +610,27 @@ module.exports = Backbone.Model.extend({
     var w = win || window;
     w.getSelection().removeAllRanges();
   },
+
+  /**
+   * Set/get data from the HTMLElement
+   * @param  {HTMLElement} el
+   * @param  {string} name Data name
+   * @param  {any} value Date value
+   * @return {any}
+   * @private
+   */
+  data(el, name, value) {
+    const varName = '_gjs-data';
+
+    if (!el[varName]) {
+      el[varName] = {};
+    }
+
+    if (isUndefined(value)) {
+      return el[varName][name];
+    } else {
+      el[varName][name] = value;
+    }
+  }
 
 });
